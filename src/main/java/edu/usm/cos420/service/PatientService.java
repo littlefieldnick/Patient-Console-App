@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import edu.usm.cos420.dao.PatientDao;
+import edu.usm.cos420.dao.cloud.impl.PatientCloudSQLDaoImpl;
 import edu.usm.cos420.dao.console.impl.PatientDaoImpl;
 import edu.usm.cos420.domain.Patient;
 
@@ -12,6 +13,14 @@ public class PatientService {
 	
 	public PatientService() {
 		pDao = new PatientDaoImpl("patients.json");
+	}
+	
+	public PatientService(String dbUrl) {
+		try {
+			pDao = new PatientCloudSQLDaoImpl(dbUrl);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void addPatient(Patient p) {
