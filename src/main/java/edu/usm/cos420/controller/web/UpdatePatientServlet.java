@@ -3,6 +3,7 @@ package edu.usm.cos420.controller.web;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,27 +14,28 @@ import javax.servlet.http.HttpServletResponse;
 import edu.usm.cos420.dao.cloud.impl.PatientCloudSQLDaoImpl;
 import edu.usm.cos420.dao.PatientDao;
 import edu.usm.cos420.domain.Patient;
-import edu.usm.cos420.service.PropertiesService;
-import edu.usm.cos420.service.PropertiesService.DatabaseProperties;
 
 
 @WebServlet(urlPatterns = {"/update"})
 public class UpdatePatientServlet extends HttpServlet{
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		PropertiesService propService = DatabaseProperties.getInstance();
+		//Get DB information
+		Properties properties = new Properties();
+		properties.load(getClass().getClassLoader().getResourceAsStream("database.properties"));
+
 		String dbUrl = String.format(this.getServletContext().getInitParameter("sql.urlRemote"), 
-				propService.getProperty("sql.dbName"), propService.getProperty("sql.instanceName"), 
-				propService.getProperty("sql.userName"), propService.getProperty("sql.password"));
-		
+				properties.getProperty("sql.dbName"), properties.getProperty("sql.instanceName"), 
+				properties.getProperty("sql.userName"), properties.getProperty("sql.password"));
+
 		PatientDao dao = null;
-		
+
 		try {
 			dao = new PatientCloudSQLDaoImpl(dbUrl);
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
-		
+
 		try {
 			Patient patient = dao.readPatient(Long.decode(req.getParameter("id")));
 			req.setAttribute("patient", patient);
@@ -49,18 +51,21 @@ public class UpdatePatientServlet extends HttpServlet{
 	@Override
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		PatientDao dao = null;
-		
-		PropertiesService propService = DatabaseProperties.getInstance();
+
+		//Get DB information
+		Properties properties = new Properties();
+		properties.load(getClass().getClassLoader().getResourceAsStream("database.properties"));
+
 		String dbUrl = String.format(this.getServletContext().getInitParameter("sql.urlRemote"), 
-				propService.getProperty("sql.dbName"), propService.getProperty("sql.instanceName"), 
-				propService.getProperty("sql.userName"), propService.getProperty("sql.password"));
-		
+				properties.getProperty("sql.dbName"), properties.getProperty("sql.instanceName"), 
+				properties.getProperty("sql.userName"), properties.getProperty("sql.password"));
+
 		try {
 			dao = new PatientCloudSQLDaoImpl(dbUrl);
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
-		
+
 		try {
 			Patient patient = new Patient();
 			patient.setId(Integer.parseInt(req.getParameter("id")));
@@ -69,7 +74,7 @@ public class UpdatePatientServlet extends HttpServlet{
 			patient.setGender(req.getParameter("gender"));
 			patient.setAddress(req.getParameter("address"));
 			patient.setBirthDate(Date.valueOf(req.getParameter("birthDate")));
-					
+
 			dao.updatePatient(patient);
 			resp.sendRedirect("/read?id=" + req.getParameter("id"));
 		} catch (Exception e) {
