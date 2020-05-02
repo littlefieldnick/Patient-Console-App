@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import edu.usm.cos420.dao.cloud.impl.PatientCloudSQLDaoImpl;
 import edu.usm.cos420.dao.PatientDao;
 import edu.usm.cos420.domain.Patient;
+import edu.usm.cos420.service.PropertiesService;
+import edu.usm.cos420.service.PropertiesService.DatabaseProperties;
 
 
 @WebServlet(urlPatterns = {"/read"})
@@ -19,7 +21,11 @@ public class ReadPatientServlet extends HttpServlet{
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
 		Long id = Long.decode(req.getParameter("id"));
-		String dbUrl = this.getServletContext().getInitParameter("sql.urlRemote");
+		
+		PropertiesService propService = DatabaseProperties.getInstance();
+		String dbUrl = String.format(this.getServletContext().getInitParameter("sql.urlRemote"), 
+				propService.getProperty("sql.dbName"), propService.getProperty("sql.instanceName"), 
+				propService.getProperty("sql.userName"), propService.getProperty("sql.password"));
 
 		PatientDao dao = null;
 		try {

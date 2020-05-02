@@ -15,7 +15,7 @@ import edu.usm.cos420.domain.Patient;
 import edu.usm.cos420.domain.Result;
 
 public class PatientCloudSQLDaoImpl implements PatientDao{
-
+	
 	String dbUrl;
 
 	public PatientCloudSQLDaoImpl(String dbUrl) throws SQLException {

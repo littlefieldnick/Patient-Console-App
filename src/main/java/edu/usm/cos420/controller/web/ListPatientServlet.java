@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import edu.usm.cos420.dao.cloud.impl.PatientCloudSQLDaoImpl;
 import edu.usm.cos420.dao.PatientDao;
 import edu.usm.cos420.domain.Patient;
+import edu.usm.cos420.service.PropertiesService;
+import edu.usm.cos420.service.PropertiesService.DatabaseProperties;
 
 
 @WebServlet(urlPatterns = {"/list"})
@@ -21,8 +23,12 @@ public class ListPatientServlet extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
 		
 		//Get DB information
-		String dbUrl = this.getServletContext().getInitParameter("sql.urlRemote");
-		System.out.println("Database URL: " + dbUrl );
+		PropertiesService propService = DatabaseProperties.getInstance();
+		String dbUrl = String.format(this.getServletContext().getInitParameter("sql.urlRemote"), 
+				propService.getProperty("sql.dbName"), propService.getProperty("sql.instanceName"), 
+				propService.getProperty("sql.userName"), propService.getProperty("sql.password"));
+		
+//		System.out.println("Database URL: " + dbUrl );
 		PatientDao dao = null;
 		
 		try {
